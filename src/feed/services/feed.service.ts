@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { FeedPostEntity } from '../models/post.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDto } from '../dto/create-post.dto';
+import { from, Observable } from 'rxjs';
 
 @Injectable()
 export class FeedService {
@@ -11,7 +12,11 @@ export class FeedService {
     private readonly FeedPostRepository: Repository<FeedPostEntity>,
   ) {}
 
-  async createPost(feedPost: CreatePostDto) {
-    return await this.FeedPostRepository.save(feedPost);
+  createPost(feedPost: CreatePostDto): Observable<FeedPostEntity> {
+    return from(this.FeedPostRepository.save(feedPost));
+  }
+
+  async getAllPosts() {
+    return await this.FeedPostRepository.find();
   }
 }
