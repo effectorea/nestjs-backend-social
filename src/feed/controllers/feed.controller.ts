@@ -1,9 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put} from '@nestjs/common';
 import { FeedService } from '../services/feed.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { FeedPostEntity } from '../models/post.entity';
 import { CreatePostDto } from '../dto/create-post.dto';
-import { Observable } from 'rxjs';
+import { from, Observable} from 'rxjs';
+import { UpdatePostDto } from '../dto/update-post.dto';
 
 @Controller('feed')
 export class FeedController {
@@ -14,5 +15,29 @@ export class FeedController {
   @Post()
   create(@Body() feedPost: CreatePostDto): Observable<FeedPostEntity> {
     return this.feedService.createPost(feedPost);
+  }
+
+  @ApiOperation({ summary: 'Получение всех постов' })
+  @ApiResponse({ status: 200, type: [FeedPostEntity] })
+  @Get()
+  getPosts(): Observable<FeedPostEntity[]> {
+    return this.feedService.getAllPosts();
+  }
+
+  @ApiOperation({ summary: 'Редактирование поста' })
+  @ApiResponse({ status: 200, type: [FeedPostEntity] })
+  @Put(':id')
+  updatePostById(
+    @Param('id') id: number,
+    @Body() feedPost: UpdatePostDto,
+  ): Observable<FeedPostEntity[]> {
+    return from(this.feedService.updatePost(id, feedPost));
+  }
+
+  @ApiOperation({ summary: 'Удаление поста' })
+  @ApiResponse({ status: 200, type: [FeedPostEntity] })
+  @Delete(':id')
+  deletePostById(@Param('id') id: number): Observable<FeedPostEntity[]> {
+    return from(this.feedService.deletePost(id));
   }
 }
