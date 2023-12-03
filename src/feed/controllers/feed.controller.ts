@@ -1,9 +1,18 @@
-import {Body, Controller, Delete, Get, Param, Post, Put} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { FeedService } from '../services/feed.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { FeedPostEntity } from '../models/post.entity';
 import { CreatePostDto } from '../dto/create-post.dto';
-import { from, Observable} from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { UpdatePostDto } from '../dto/update-post.dto';
 
 @Controller('feed')
@@ -17,11 +26,22 @@ export class FeedController {
     return this.feedService.createPost(feedPost);
   }
 
+  // @ApiOperation({ summary: 'Получение всех постов' })
+  // @ApiResponse({ status: 200, type: [FeedPostEntity] })
+  // @Get()
+  // getPosts(): Observable<FeedPostEntity[]> {
+  //   return this.feedService.getAllPosts();
+  // }
+
   @ApiOperation({ summary: 'Получение всех постов' })
   @ApiResponse({ status: 200, type: [FeedPostEntity] })
   @Get()
-  getPosts(): Observable<FeedPostEntity[]> {
-    return this.feedService.getAllPosts();
+  getSelectedPosts(
+    @Query('take') take: number = 1,
+    @Query('skip') skip: number = 1,
+  ): Observable<FeedPostEntity[]> {
+    take = take > 20 ? 20 : take;
+    return this.feedService.findPosts(take, skip);
   }
 
   @ApiOperation({ summary: 'Редактирование поста' })
