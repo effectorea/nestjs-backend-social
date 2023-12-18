@@ -6,7 +6,8 @@ import {
   Param,
   Post,
   Put,
-  Query,
+    Request,
+  Query, UseGuards,
 } from '@nestjs/common';
 import { FeedService } from '../services/feed.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -14,6 +15,7 @@ import { FeedPostEntity } from '../models/post.entity';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { from, Observable } from 'rxjs';
 import { UpdatePostDto } from '../dto/update-post.dto';
+import {JwtGuard} from "../../auth/guards/jwt.guard";
 
 @Controller('feed')
 export class FeedController {
@@ -21,9 +23,10 @@ export class FeedController {
 
   @ApiOperation({ summary: 'Создание поста' })
   @ApiResponse({ status: 200, type: FeedPostEntity })
+  @UseGuards(JwtGuard)
   @Post()
-  create(@Body() feedPost: CreatePostDto): Observable<FeedPostEntity> {
-    return this.feedService.createPost(feedPost);
+  create(@Body() feedPost: CreatePostDto, @Request() req): Observable<FeedPostEntity> {
+    return this.feedService.createPost(feedPost, req.user);
   }
 
   // @ApiOperation({ summary: 'Получение всех постов' })
