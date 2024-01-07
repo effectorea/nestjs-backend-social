@@ -1,14 +1,25 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards,} from '@nestjs/common';
-import {FeedService} from '../services/feed.service';
-import {ApiOperation, ApiResponse} from '@nestjs/swagger';
-import {FeedPostEntity} from '../models/post.entity';
-import {CreatePostDto} from '../dto/create-post.dto';
-import {from, Observable} from 'rxjs';
-import {UpdatePostDto} from '../dto/update-post.dto';
-import {JwtGuard} from "../../auth/guards/jwt.guard";
-import {Roles} from "../../auth/decorators/roles.decorator";
-import {Role} from "../../auth/models/role.enum";
-import {RolesGuard} from "../../auth/guards/roles.guard";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { FeedService } from '../services/feed.service';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { FeedPostEntity } from '../models/post.entity';
+import { CreatePostDto } from '../dto/create-post.dto';
+import { from, Observable } from 'rxjs';
+import { UpdatePostDto } from '../dto/update-post.dto';
+import { JwtGuard } from '../../auth/guards/jwt.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { Role } from '../../auth/models/role.enum';
+import { RolesGuard } from '../../auth/guards/roles.guard';
 
 @Controller('feed')
 export class FeedController {
@@ -19,7 +30,10 @@ export class FeedController {
   @Roles(Role.ADMIN, Role.PREMIUM)
   @UseGuards(JwtGuard, RolesGuard)
   @Post()
-  create(@Body() feedPost: CreatePostDto, @Request() req): Observable<FeedPostEntity> {
+  create(
+    @Body() feedPost: CreatePostDto,
+    @Request() req,
+  ): Observable<FeedPostEntity> {
     return this.feedService.createPost(feedPost, req.user);
   }
 
