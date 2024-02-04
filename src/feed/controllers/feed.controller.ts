@@ -20,6 +20,7 @@ import { JwtGuard } from '../../auth/guards/jwt.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/models/role.enum';
 import { RolesGuard } from '../../auth/guards/roles.guard';
+import {IsCreatorGuard} from "../guard/is-creator.guard";
 
 @Controller('feed')
 export class FeedController {
@@ -57,6 +58,7 @@ export class FeedController {
 
   @ApiOperation({ summary: 'Редактирование поста' })
   @ApiResponse({ status: 200, type: [FeedPostEntity] })
+  @UseGuards(JwtGuard, IsCreatorGuard)
   @Put(':id')
   updatePostById(
     @Param('id') id: number,
@@ -67,6 +69,7 @@ export class FeedController {
 
   @ApiOperation({ summary: 'Удаление поста' })
   @ApiResponse({ status: 200, type: [FeedPostEntity] })
+  @UseGuards(JwtGuard, IsCreatorGuard)
   @Delete(':id')
   deletePostById(@Param('id') id: number): Observable<FeedPostEntity[]> {
     return from(this.feedService.deletePost(id));

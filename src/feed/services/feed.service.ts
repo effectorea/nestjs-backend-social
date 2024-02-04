@@ -7,6 +7,7 @@ import { from, Observable } from 'rxjs';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import {User} from "../../auth/models/user.interface";
 import {UserEntity} from "../../auth/models/user.entity";
+import {FeedPost} from "../models/post.interface";
 
 @Injectable()
 export class FeedService {
@@ -15,8 +16,11 @@ export class FeedService {
     private readonly FeedPostRepository: Repository<FeedPostEntity>,
   ) {}
 
-  createPost(feedPost: CreatePostDto, user: UserEntity): Observable<FeedPostEntity> {
-    feedPost.author = user
+  createPost(
+    feedPost: CreatePostDto,
+    user: UserEntity,
+  ): Observable<FeedPostEntity> {
+    feedPost.author = user;
     return from(this.FeedPostRepository.save(feedPost));
   }
 
@@ -24,11 +28,22 @@ export class FeedService {
     return from(this.FeedPostRepository.find());
   }
 
+  // findPosts(take: number = 10, skip: number = 0): Observable<FeedPostEntity[]> {
+  //   return from(
+  //     this.FeedPostRepository.findAndCount({ take, skip }).then((data) => {
+  //       return data[0];
+  //     }),
+  //   );
+  // }
+
   findPosts(take: number = 10, skip: number = 0): Observable<FeedPostEntity[]> {
     return from(
-      this.FeedPostRepository.findAndCount({ take, skip }).then((data) => {
-        return data[0];
-      }),
+      this.FeedPostRepository.createQueryBuilder('post')
+        .innerJoinAndSelect('post.author', 'author')
+        .orderBy('post.createdAt', 'DESC')
+        .take(take)
+        .skip(skip)
+        .getMany(),
     );
   }
 
@@ -50,5 +65,16 @@ export class FeedService {
       id: id,
     });
     return deletingPost;
+  }
+
+  findPostById(id: number): Observable<FeedPost> {
+    return from(
+      this.FeedPostRepository.findOne({
+        where: {
+          id: id,
+        },
+        relations: ['author'],
+      }),
+    );
   }
 }
