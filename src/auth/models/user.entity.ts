@@ -31,6 +31,13 @@ export class UserEntity {
   @Column({ select: false })
   password: string;
 
+  @ApiProperty({
+    example: 'dfgt-122r-qqq5-kklg',
+    description: 'Путь изображения',
+  })
+  @Column({ nullable: true })
+  imagePath: string;
+
   @ApiProperty({ example: 'user', description: 'Роль' })
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
