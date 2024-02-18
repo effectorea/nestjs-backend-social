@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { FeedService } from '../services/feed.service';
@@ -20,7 +21,7 @@ import { JwtGuard } from '../../auth/guards/jwt.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../../auth/models/role.enum';
 import { RolesGuard } from '../../auth/guards/roles.guard';
-import {IsCreatorGuard} from "../guard/is-creator.guard";
+import { IsCreatorGuard } from '../guard/is-creator.guard';
 
 @Controller('feed')
 export class FeedController {
@@ -73,5 +74,11 @@ export class FeedController {
   @Delete(':id')
   deletePostById(@Param('id') id: number): Observable<FeedPostEntity[]> {
     return from(this.feedService.deletePost(id));
+  }
+
+  @Get('image/:fileName')
+  findImageByFileName(@Param('fileName') fileName: string, @Res() res) {
+    if (!fileName || ['null', '[null]'].includes(fileName)) return;
+    return res.sendFile(fileName, { root: './images' });
   }
 }
