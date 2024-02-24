@@ -16,9 +16,8 @@ import {
   removeFile,
   saveImageToStorage,
 } from '../helpers/image-storage';
-import { Observable, of, switchMap } from 'rxjs';
+import { map, Observable, of, switchMap } from 'rxjs';
 import { join } from 'path';
-import { UpdateResult } from 'typeorm';
 
 @Controller('user')
 export class UserController {
@@ -30,7 +29,7 @@ export class UserController {
   uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Request() req,
-  ): Observable<UpdateResult | { error: string }> {
+  ): Observable<{ modifiedFileName: string } | { error: string }> {
     const fileName = file?.filename;
 
     if (!fileName) return of({ error: 'File must be a png, jpg/jpeg' });
@@ -43,7 +42,11 @@ export class UserController {
       switchMap((isFileLegit: boolean) => {
         if (isFileLegit) {
           const userId = req.user.id;
-          return this.userService.updateImageById(userId, fileName);
+          return this.userService.updateImageById(userId, fileName).pipe(
+            map(() => ({
+              modifiedFileName: file.filename,
+            })),
+          );
         }
         removeFile(fullImagePath);
         return of({ error: 'File content does not match extension!' });
@@ -67,15 +70,13 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
-  @Get('image-name')
-  findUserImageName(
-    @Request() req,
-    @Res() res,
-  ): Observable<{ imageName: string }> {
+  @Get('imageName')
+  findUserImageName(@Request() req): Observable<{ imageName: string }> {
     const userId = req.user.id;
+    console.log(userId);
     return this.userService.findImageNameByUserId(userId).pipe(
       switchMap((imageName: string) => {
-        return of({ imageName });
+        return of({ imageName: imageName });
       }),
     );
   }
