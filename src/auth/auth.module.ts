@@ -9,6 +9,7 @@ import { JwtStrategy } from './guards/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { UserService } from './services/user.service';
 import { UserController } from './controllers/user.controller';
+import { FriendRequestEntity } from './models/friend-request.entity';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { UserController } from './controllers/user.controller';
         };
       },
     }),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, FriendRequestEntity]),
   ],
   providers: [AuthService, JwtGuard, JwtStrategy, RolesGuard, UserService],
   controllers: [AuthController, UserController],
