@@ -8,6 +8,8 @@ import {
   Get,
   Res,
   Param,
+  Put,
+  Body,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { JwtGuard } from '../guards/jwt.guard';
@@ -24,6 +26,7 @@ import {
   FriendRequestInterface,
   FriendRequestStatus,
 } from '../models/friend-request.interface';
+import {FriendRequestEntity} from "../models/friend-request.entity";
 
 @Controller('user')
 export class UserController {
@@ -96,7 +99,10 @@ export class UserController {
 
   @UseGuards(JwtGuard)
   @Post('friend-request/send/:receiverId')
-  sendFriendRequest(@Param('receiverId') receiverStringId: string, @Request() req): Observable<FriendRequestInterface | { error: string }> {
+  sendFriendRequest(
+    @Param('receiverId') receiverStringId: string,
+    @Request() req,
+  ): Observable<FriendRequestInterface | { error: string }> {
     const receiverId = parseInt(receiverStringId);
     const user = req.user;
     return this.userService.sendFriendRequest(receiverId, user);
@@ -110,5 +116,26 @@ export class UserController {
   ): Observable<FriendRequestStatus> {
     const receiverId = parseInt(receiverStringId);
     return this.userService.getFriendRequestStatus(receiverId, req.user);
+  }
+
+  @UseGuards(JwtGuard)
+  @Put('friend-request/response/:friendRequestId')
+  respondToFriendRequest(
+    @Param('friendRequestId') friendRequestStringId: string,
+    @Body() statusResponse: FriendRequestStatus,
+  ): Observable<FriendRequestStatus> {
+    const friendRequestId = parseInt(friendRequestStringId);
+    return this.userService.respondToFriendRequest(
+      friendRequestId,
+      statusResponse.status,
+    );
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('friend-request/me/received-requests')
+  getFriendRequestsFromRecipients(
+      @Request() req,
+  ): Observable<FriendRequestInterface[]> {
+    return this.userService.getFriendRequestsFromRecipients(req.user);
   }
 }

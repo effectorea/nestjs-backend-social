@@ -3,9 +3,10 @@ import { from, map, Observable, of, switchMap } from 'rxjs';
 import { User } from '../models/user.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../models/user.entity';
-import { Brackets, Repository, UpdateResult } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { FriendRequestEntity } from '../models/friend-request.entity';
 import {
+  FriendRequest_Status,
   FriendRequestInterface,
   FriendRequestStatus,
 } from '../models/friend-request.interface';
@@ -35,7 +36,7 @@ export class UserService {
     );
   }
 
-    findUserByIdWitoutRels(id: number): Observable<User> {
+  findUserByIdWitoutRels(id: number): Observable<User> {
     return from(
       this.userRepository.findOne({
         where: {
@@ -128,23 +129,63 @@ export class UserService {
       switchMap((receiver: User) => {
         console.log('This is a receiver', receiver);
         return from(
-          this.friendRequestRepository
-            .createQueryBuilder('requests')
-            .where('requests.creatorId= :currentUserId', {
-              currentUserId: currentUser.id,
-            })
-            .andWhere('requests.receiverId= :receiverUserId', {
-              receiverUserId: receiver.id,
-            })
-            .getOne(),
-          // this.friendRequestRepository.findOne({
-          //   where: { creator: currentUser, receiver: receiver },
-          // }),
+          // this.friendRequestRepository
+          //   .createQueryBuilder('requests')
+          //   .where('requests.creatorId= :currentUserId', {
+          //     currentUserId: currentUser.id,
+          //   })
+          //   .andWhere('requests.receiverId= :receiverUserId', {
+          //     receiverUserId: receiver.id,
+          //   })
+          //   .getOne(),
+          this.friendRequestRepository.findOne({
+            where: { creator: currentUser, receiver: receiver },
+          }),
         );
       }),
       switchMap((friendRequest: FriendRequestInterface) => {
         console.log('friendRequest', friendRequest);
         return of({ status: friendRequest.status });
+      }),
+    );
+  }
+
+  getFriendRequestUserById(
+    friendRequestId: number,
+  ): Observable<FriendRequestInterface> {
+    return from(
+      this.friendRequestRepository.findOne({
+        where: {
+          id: friendRequestId,
+        },
+      }),
+    );
+  }
+
+  respondToFriendRequest(
+    friendRequestId: number,
+    statusResponse: FriendRequest_Status,
+  ): Observable<FriendRequestStatus> {
+    return this.getFriendRequestUserById(friendRequestId).pipe(
+      switchMap((friendRequest: FriendRequestInterface) => {
+        return from(
+          this.friendRequestRepository.save({
+            ...friendRequest,
+            status: statusResponse,
+          }),
+        );
+      }),
+    );
+  }
+
+  getFriendRequestsFromRecipients(
+    user: User,
+  ): Observable<FriendRequestInterface[]> {
+    return from(
+      this.friendRequestRepository.find({
+        where: {
+          receiver: user,
+        },
       }),
     );
   }
