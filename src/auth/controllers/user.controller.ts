@@ -26,7 +26,6 @@ import {
   FriendRequestInterface,
   FriendRequestStatus,
 } from '../models/friend-request.interface';
-import {FriendRequestEntity} from "../models/friend-request.entity";
 
 @Controller('user')
 export class UserController {
