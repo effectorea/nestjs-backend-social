@@ -139,13 +139,24 @@ export class UserService {
           //   })
           //   .getOne(),
           this.friendRequestRepository.findOne({
-            where: { creator: currentUser, receiver: receiver },
+            where: [
+              { creator: currentUser, receiver: receiver },
+              { creator: receiver, receiver: currentUser },
+            ],
+            relations: ['receiver', 'creator'],
           }),
         );
       }),
       switchMap((friendRequest: FriendRequestInterface) => {
         console.log('friendRequest', friendRequest);
-        return of({ status: friendRequest.status });
+        if (friendRequest?.receiver.id === currentUser.id) {
+          return of({
+            status: 'waiting-for-current-user-response' as FriendRequest_Status,
+          });
+        }
+        return of({
+          status: friendRequest?.status || ('not-sent' as FriendRequest_Status),
+        });
       }),
     );
   }
