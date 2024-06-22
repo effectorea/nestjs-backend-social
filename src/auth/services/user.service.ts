@@ -99,7 +99,6 @@ export class UserService {
   ): Observable<FriendRequestInterface | { error: string }> {
     if (receiverId === creator.id)
       return of({ error: 'It is not possible to add yourself' });
-
     return this.findUserByIdWitoutRels(receiverId).pipe(
       switchMap((receiver: User) => {
         return this.hasRequestBeenSentOrReceived(creator, receiver).pipe(
