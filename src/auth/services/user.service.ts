@@ -196,6 +196,7 @@ export class UserService {
         where: {
           receiver: user,
         },
+        relations: ['receiver', 'creator'],
       }),
     );
   }
