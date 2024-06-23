@@ -149,6 +149,16 @@ export class UserService {
       switchMap((friendRequest: FriendRequestInterface) => {
         console.log('friendRequest', friendRequest);
         if (friendRequest?.receiver.id === currentUser.id) {
+          if (friendRequest.status === 'declined') {
+            return of({
+              status: 'declined' as FriendRequest_Status,
+            });
+          }
+          if (friendRequest.status === 'accepted') {
+            return of({
+              status: 'accepted' as FriendRequest_Status,
+            });
+          }
           return of({
             status: 'waiting-for-current-user-response' as FriendRequest_Status,
           });
