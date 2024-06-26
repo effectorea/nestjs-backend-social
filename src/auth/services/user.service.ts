@@ -128,15 +128,6 @@ export class UserService {
       switchMap((receiver: User) => {
         console.log('This is a receiver', receiver);
         return from(
-          // this.friendRequestRepository
-          //   .createQueryBuilder('requests')
-          //   .where('requests.creatorId= :currentUserId', {
-          //     currentUserId: currentUser.id,
-          //   })
-          //   .andWhere('requests.receiverId= :receiverUserId', {
-          //     receiverUserId: receiver.id,
-          //   })
-          //   .getOne(),
           this.friendRequestRepository.findOne({
             where: [
               { creator: currentUser, receiver: receiver },
@@ -147,7 +138,6 @@ export class UserService {
         );
       }),
       switchMap((friendRequest: FriendRequestInterface) => {
-        console.log('friendRequest', friendRequest);
         if (friendRequest?.receiver.id === currentUser.id) {
           if (friendRequest.status === 'declined') {
             return of({
@@ -209,5 +199,9 @@ export class UserService {
         relations: ['receiver', 'creator'],
       }),
     );
+  }
+
+  getSomebodyHat() {
+    console.log('hsa');
   }
 }
