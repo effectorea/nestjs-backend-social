@@ -1,12 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const PORT = process.env.PORT || 5000;
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.setGlobalPrefix('api');
+  const configService = app.get(ConfigService);
+  const PORT = configService.get('PORT');
   const config = new DocumentBuilder()
     .setTitle('Social backend')
     .setDescription('LinkedIn clone api')
@@ -17,4 +19,5 @@ async function bootstrap() {
   SwaggerModule.setup('api-swag', app, document);
   await app.listen(PORT, () => console.log(`Server started on PORT=${PORT}`));
 }
+
 bootstrap();
