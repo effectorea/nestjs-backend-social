@@ -1,10 +1,10 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { from, map, Observable, of, switchMap } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { User } from '../models/user.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../models/user.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -59,10 +59,13 @@ export class AuthService {
       }),
     ).pipe(
       switchMap((user: User) => {
-          if (!user) {
-              // throw new HttpException('Not found', HttpStatus.NOT_FOUND)
-              throw new HttpException({ status: HttpStatus.NOT_FOUND, message: 'Invalid credentials'}, HttpStatus.NOT_FOUND)
-          }
+        if (!user) {
+          // throw new HttpException('Not found', HttpStatus.NOT_FOUND)
+          throw new HttpException(
+            { status: HttpStatus.NOT_FOUND, message: 'Invalid credentials' },
+            HttpStatus.NOT_FOUND,
+          );
+        }
         return from(bcrypt.compare(password, user.password)).pipe(
           map((isValidPassword: boolean) => {
             if (isValidPassword) {

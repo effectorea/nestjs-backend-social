@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from './role.enum';
 import { FeedPostEntity } from '../../feed/models/post.entity';
-import {FriendRequestEntity} from "./friend-request.entity";
+import { FriendRequestEntity } from './friend-request.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -40,7 +40,7 @@ export class UserEntity {
   imagePath: string;
 
   @ApiProperty({ example: 'user', description: 'Роль' })
-  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  @Column({ type: 'enum', enum: Role, default: Role.ADMIN })
   role: Role;
 
   @OneToMany(() => FeedPostEntity, (feedPostEntity) => feedPostEntity.author)
@@ -54,9 +54,9 @@ export class UserEntity {
   sentFriendRequests: FriendRequestEntity[];
 
   @OneToMany(
-      () => FriendRequestEntity,
-      (friendRequestEntityEntity: FriendRequestEntity) =>
-          friendRequestEntityEntity.receiver,
+    () => FriendRequestEntity,
+    (friendRequestEntityEntity: FriendRequestEntity) =>
+      friendRequestEntityEntity.receiver,
   )
   receivedFriendRequests: FriendRequestEntity[];
 }
