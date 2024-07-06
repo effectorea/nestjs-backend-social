@@ -133,7 +133,7 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Get('friend-request/me/received-requests')
   getFriendRequestsFromRecipients(
-      @Request() req,
+    @Request() req,
   ): Observable<FriendRequestInterface[]> {
     return this.userService.getFriendRequestsFromRecipients(req.user);
   }

@@ -4,7 +4,7 @@ import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import {ValidationPipe} from "@nestjs/common";
+import { ValidationPipe } from '@nestjs/common';
 
 const logStream = fs.createWriteStream('api.log', {
   flags: 'a',
@@ -20,6 +20,7 @@ async function bootstrap() {
     .setTitle('Social backend')
     .setDescription('LinkedIn clone api')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('API для приложения клона LinkedIn')
     .build();
   const document = SwaggerModule.createDocument(app, config);
