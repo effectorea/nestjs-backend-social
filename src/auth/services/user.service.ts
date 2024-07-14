@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { from, map, Observable, of, switchMap } from 'rxjs';
+import { combineLatest, from, map, Observable, of, switchMap } from 'rxjs';
 import { User } from '../models/user.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../models/user.entity';
@@ -206,5 +206,35 @@ export class UserService {
 
   getSomebodyHat() {
     console.log('hsa');
+  }
+
+  getFriends(currentUser: User): Observable<User[]> {
+    return from(
+      this.friendRequestRepository.find({
+        where: [
+          {
+            creator: currentUser,
+            status: 'accepted',
+          },
+          {
+            receiver: currentUser,
+            status: 'accepted',
+          },
+        ],
+        relations: ['creator', 'receiver'],
+      }),
+    ).pipe(
+      switchMap((requests: FriendRequestInterface[]) => {
+        const userIds: number[] = [];
+        requests.forEach((request) => {
+          if (request.receiver.id === currentUser.id) {
+            userIds.push(request.creator.id);
+          } else if (request.creator.id === currentUser.id) {
+            userIds.push(request.receiver.id);
+          }
+        });
+        return from(this.userRepository.findByIds(userIds));
+      }),
+    );
   }
 }
